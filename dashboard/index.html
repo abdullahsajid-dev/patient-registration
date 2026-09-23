@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient Registry — Dashboard</title>
+  <meta name="description" content="Voice AI Patient Registration System — Admin Dashboard to view and manage registered patients." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-primary: #0a0f1e;
+      --bg-secondary: #0d1526;
+      --bg-card: #111827;
+      --bg-card-hover: #1a2235;
+      --border: #1e2d45;
+      --border-light: #243552;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-glow: rgba(59, 130, 246, 0.15);
+      --green: #10b981;
+      --green-bg: rgba(16, 185, 129, 0.1);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.1);
+      --yellow: #f59e0b;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #475569;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+
+    .header-left { display: flex; align-items: center; gap: 0.75rem; }
+
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+
+    .logo-text { font-weight: 700; font-size: 1rem; color: var(--text-primary); }
+    .logo-sub { font-size: 0.75rem; color: var(--text-secondary); }
+
+    .status-badge {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: var(--green-bg);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--green);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.2); }
+    }
+
+    /* ── Main Layout ── */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* ── Stats Row ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .stat-card:hover {
+      border-color: var(--border-light);
+      transform: translateY(-2px);
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .stat-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+
+    /* ── Table Section ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .search-bar:focus-within { border-color: var(--accent); }
+
+    .search-bar input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.875rem;
+      width: 220px;
+    }
+
+    .search-bar input::placeholder { color: var(--text-muted); }
+
+    .refresh-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+    }
+
+    .refresh-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── Table ── */
+    .table-wrapper {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      padding: 0.875rem 1.25rem;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--bg-card-hover); }
+
+    td {
+      padding: 1rem 1.25rem;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      vertical-align: middle;
+    }
+
+    .avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .patient-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .patient-name { font-weight: 500; }
+    .patient-id { font-size: 0.7rem; color: var(--text-muted); }
+
+    .reason-badge {
+      background: var(--accent-glow);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      color: var(--accent);
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      display: inline-block;
+      max-width: 180px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-muted);
+    }
+
+    .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .empty-title { font-size: 1rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.5rem; }
+    .empty-sub { font-size: 0.875rem; }
+
+    .loading-state {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.5rem;
+      padding: 3rem;
+      color: var(--text-muted);
+    }
+
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 2rem;
+      max-width: 520px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      animation: slideUp 0.2s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.25rem;
+      line-height: 1;
+      padding: 4px;
+      border-radius: 4px;
+      transition: color 0.2s;
+    }
+
+    .modal-close:hover { color: var(--text-primary); }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .detail-item { display: flex; flex-direction: column; gap: 0.25rem; }
+    .detail-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .detail-value { font-size: 0.9rem; color: var(--text-primary); }
+    .detail-value.full { grid-column: 1 / -1; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo-icon">🏥</div>
+    <div>
+      <div class="logo-text">Patient Registry</div>
+      <div class="logo-sub">Voice AI Registration System</div>
+    </div>
+  </div>
+  <div class="status-badge">
+    <div class="status-dot"></div>
+    <span id="status-text">System Online</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Patients</div>
+      <div class="stat-value" id="stat-total">—</div>
+      <div class="stat-sub">Active registrations</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Registered Today</div>
+      <div class="stat-value" id="stat-today">—</div>
+      <div class="stat-sub">New patients today</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Last Registration</div>
+      <div class="stat-value" id="stat-last" style="font-size:1.1rem; padding-top:0.5rem;">—</div>
+      <div class="stat-sub" id="stat-last-time">No registrations yet</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">API Status</div>
+      <div class="stat-value" id="stat-api" style="font-size:1.1rem; padding-top:0.5rem; color: var(--green)">✓ Live</div>
+      <div class="stat-sub">Backend connected</div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="section-header">
+    <h2 class="section-title">Registered Patients</h2>
+    <div style="display:flex; gap:0.75rem; align-items:center;">
+      <div class="search-bar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted)">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="search-input" placeholder="Search patients..." />
+      </div>
+      <button class="refresh-btn" id="refresh-btn" onclick="loadPatients()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Patient</th>
+          <th>Date of Birth</th>
+          <th>Phone</th>
+          <th>Reason for Visit</th>
+          <th>Registered</th>
+        </tr>
+      </thead>
+      <tbody id="patients-tbody">
+        <tr>
+          <td colspan="5">
+            <div class="loading-state">
+              <div class="spinner"></div>
+              <span>Loading patients...</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<!-- Patient Detail Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-title">
+      <span>Patient Details</span>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="detail-grid" id="modal-content"></div>
+  </div>
+</div>
+
+<footer>
+  Patient Registration System &mdash; Voice AI Assessment &nbsp;|&nbsp; Data refreshes every 30s
+</footer>
+
+<script>
+  let allPatients = [];
+  let refreshInterval;
+
+  // Format dates nicely
+  function formatDate(isoStr) {
+    if (!isoStr) return '—';
+    const d = new Date(isoStr);
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  function formatDateTime(isoStr) {
+    if (!isoStr) return '—';
+    const d = new Date(isoStr);
+    return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function formatPhone(phone) {
+    if (!phone) return '—';
+    const digits = phone.replace(/\D/g, '');
+    if (digits.length === 10) {
+      return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+    }
+    return phone;
+  }
+
+  function getInitials(first, last) {
+    return `${(first || '?')[0]}${(last || '?')[0]}`.toUpperCase();
+  }
+
+  // ── Load patients from API ──
+  async function loadPatients() {
+    const btn = document.getElementById('refresh-btn');
+    btn.style.opacity = '0.5';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/patients');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      allPatients = json.data || [];
+      renderTable(allPatients);
+      updateStats(allPatients);
+    } catch (err) {
+      console.error('Failed to load patients:', err);
+      document.getElementById('stat-api').textContent = '✗ Error';
+      document.getElementById('stat-api').style.color = 'var(--red)';
+      document.getElementById('patients-tbody').innerHTML = `
+        <tr><td colspan="5">
+          <div class="empty-state">
+            <div class="empty-icon">⚠️</div>
+            <div class="empty-title">Failed to load patients</div>
+            <div class="empty-sub">Make sure the server is running. Error: ${err.message}</div>
+          </div>
+        </td></tr>`;
+    } finally {
+      btn.style.opacity = '1';
+      btn.disabled = false;
+    }
+  }
+
+  // ── Render table rows ──
+  function renderTable(patients) {
+    const tbody = document.getElementById('patients-tbody');
+
+    if (!patients.length) {
+      tbody.innerHTML = `
+        <tr><td colspan="5">
+          <div class="empty-state">
+            <div class="empty-icon">🏥</div>
+            <div class="empty-title">No patients registered yet</div>
+            <div class="empty-sub">Call the Voice AI agent to register the first patient</div>
+          </div>
+        </td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = patients.map(p => `
+      <tr onclick="showModal('${p.id}')" style="cursor:pointer;" id="row-${p.id}">
+        <td>
+          <div class="patient-cell">
+            <div class="avatar">${getInitials(p.first_name, p.last_name)}</div>
+            <div>
+              <div class="patient-name">${p.first_name} ${p.last_name}</div>
+              <div class="patient-id">${p.id.slice(0,8)}…</div>
+            </div>
+          </div>
+        </td>
+        <td>${formatDate(p.date_of_birth)}</td>
+        <td>${formatPhone(p.phone)}</td>
+        <td>${p.reason_for_visit ? `<span class="reason-badge">${p.reason_for_visit}</span>` : '<span style="color:var(--text-muted)">—</span>'}</td>
+        <td style="color:var(--text-secondary)">${formatDateTime(p.created_at)}</td>
+      </tr>
+    `).join('');
+  }
+
+  // ── Update stats ──
+  function updateStats(patients) {
+    document.getElementById('stat-total').textContent = patients.length;
+
+    const today = new Date().toDateString();
+    const todayCount = patients.filter(p => new Date(p.created_at).toDateString() === today).length;
+    document.getElementById('stat-today').textContent = todayCount;
+
+    if (patients.length > 0) {
+      const last = patients[0];
+      document.getElementById('stat-last').textContent = `${last.first_name} ${last.last_name}`;
+      document.getElementById('stat-last-time').textContent = formatDateTime(last.created_at);
+    }
+  }
+
+  // ── Search filter ──
+  document.getElementById('search-input').addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase().trim();
+    if (!q) { renderTable(allPatients); return; }
+    const filtered = allPatients.filter(p =>
+      `${p.first_name} ${p.last_name}`.toLowerCase().includes(q) ||
+      (p.phone || '').includes(q) ||
+      (p.reason_for_visit || '').toLowerCase().includes(q)
+    );
+    renderTable(filtered);
+  });
+
+  // ── Modal ──
+  function showModal(patientId) {
+    const p = allPatients.find(x => x.id === patientId);
+    if (!p) return;
+
+    document.getElementById('modal-content').innerHTML = `
+      <div class="detail-item">
+        <span class="detail-label">First Name</span>
+        <span class="detail-value">${p.first_name}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Last Name</span>
+        <span class="detail-value">${p.last_name}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Date of Birth</span>
+        <span class="detail-value">${formatDate(p.date_of_birth)}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Phone</span>
+        <span class="detail-value">${formatPhone(p.phone)}</span>
+      </div>
+      ${p.email ? `
+      <div class="detail-item" style="grid-column:1/-1">
+        <span class="detail-label">Email</span>
+        <span class="detail-value">${p.email}</span>
+      </div>` : ''}
+      ${p.address ? `
+      <div class="detail-item" style="grid-column:1/-1">
+        <span class="detail-label">Address</span>
+        <span class="detail-value">${[p.address, p.city, p.state, p.zip].filter(Boolean).join(', ')}</span>
+      </div>` : ''}
+      ${p.reason_for_visit ? `
+      <div class="detail-item" style="grid-column:1/-1">
+        <span class="detail-label">Reason for Visit</span>
+        <span class="detail-value">${p.reason_for_visit}</span>
+      </div>` : ''}
+      <div class="detail-item">
+        <span class="detail-label">Registered At</span>
+        <span class="detail-value">${formatDateTime(p.created_at)}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Patient ID</span>
+        <span class="detail-value" style="font-size:0.75rem; color:var(--text-muted)">${p.id}</span>
+      </div>
+    `;
+    document.getElementById('modal-overlay').classList.add('active');
+  }
+
+  function closeModal(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModalDirect();
+  }
+
+  function closeModalDirect() {
+    document.getElementById('modal-overlay').classList.remove('active');
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModalDirect();
+  });
+
+  // ── Init ──
+  loadPatients();
+  refreshInterval = setInterval(loadPatients, 30000);
+</script>
+
+</body>
+</html>
